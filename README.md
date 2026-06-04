@@ -64,23 +64,6 @@ Request body:
 }
 ```
 
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "User registered successfully",
-  "data": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "role": "contributor",
-    "created_at": "2026-01-20T09:00:00Z",
-    "updated_at": "2026-01-20T09:00:00Z"
-  }
-}
-```
-
 #### POST `/api/auth/login`
 
 Request body:
@@ -89,26 +72,6 @@ Request body:
 {
   "email": "john.doe@example.com",
   "password": "securePassword123"
-}
-```
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "data": {
-    "token": "<jwt_token>",
-    "user": {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "role": "contributor",
-      "created_at": "2026-01-20T09:00:00Z",
-      "updated_at": "2026-01-20T09:00:00Z"
-    }
-  }
 }
 ```
 
@@ -125,81 +88,7 @@ Request body:
   "title": "Database connection timeout under load",
   "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
   "type": "bug"
-}
-```
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Issue created successfully",
-  "data": {
-    "id": 45,
-    "title": "Database connection timeout under load",
-    "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-    "type": "bug",
-    "status": "open",
-    "reporter_id": 1,
-    "created_at": "2026-01-20T10:30:00Z",
-    "updated_at": "2026-01-20T10:30:00Z"
-  }
-}
-```
-
-#### GET `/api/issues`
-
-Optional query parameters: `sort=newest|oldest`, `type=bug|feature_request`, `status=open|in_progress|resolved`
-
-Success response includes reporter details:
-
-```json
-{
-  "success": true,
-  "message": "Issues retrieved successfully",
-  "data": [
-    {
-      "id": 45,
-      "title": "Database connection timeout under load",
-      "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-      "type": "bug",
-      "status": "open",
-      "reporter": {
-        "id": 1,
-        "name": "John Doe",
-        "role": "contributor"
-      },
-      "created_at": "2026-01-20T10:30:00Z",
-      "updated_at": "2026-01-20T14:45:00Z"
-    }
-  ]
-}
-```
-
-#### GET `/api/issues/:id`
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Issue retrieved successfully",
-  "data": {
-    "id": 45,
-    "title": "Database connection timeout under load",
-    "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-    "type": "bug",
-    "status": "open",
-    "reporter": {
-      "id": 1,
-      "name": "John Doe",
-      "role": "contributor"
-    },
-    "created_at": "2026-01-20T10:30:00Z",
-    "updated_at": "2026-01-20T14:45:00Z"
-  }
-}
-```
+}```
 
 #### PATCH `/api/issues/:id`
 
@@ -208,16 +97,6 @@ Requires JWT. Contributors can update their own open issues. Maintainers can upd
 #### DELETE `/api/issues/:id`
 
 Requires JWT and maintainer role.
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Issue deleted successfully",
-  "data": null
-}
-```
 
 ## Database Schema
 
