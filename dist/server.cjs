@@ -5,18 +5,41 @@
    const require = createRequire(import.meta.url);
 
   
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
 // src/app.ts
-import express from "express";
-import cors from "cors";
+var import_express7 = __toESM(require("express"), 1);
+var import_cors = __toESM(require("cors"), 1);
 
 // src/modules/auth/auth.routes.ts
-import { Router } from "express";
+var import_express2 = require("express");
 
 // src/modules/auth/auth.controller.ts
-import bcrypt2 from "bcrypt";
-import jwt from "jsonwebtoken";
-import "express";
+var import_bcrypt2 = __toESM(require("bcrypt"), 1);
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+var import_express = require("express");
 
 // src/utils/errors.ts
 var ApiError = class extends Error {
@@ -42,14 +65,14 @@ var errorResponse = (message, errors) => ({
 });
 
 // src/modules/auth/auth.service.ts
-import bcrypt from "bcrypt";
+var import_bcrypt = __toESM(require("bcrypt"), 1);
 
 // src/config/db.ts
-import { Pool } from "pg";
+var import_pg = require("pg");
 
 // src/config/index.ts
-import dotenv from "dotenv";
-dotenv.config();
+var import_dotenv = __toESM(require("dotenv"), 1);
+import_dotenv.default.config();
 var parsePort = (value) => {
   const raw = String(value ?? "4000").trim().replace(/;$/, "");
   const port = Number(raw);
@@ -62,7 +85,7 @@ var config = {
 var config_default = config;
 
 // src/config/db.ts
-var pool = new Pool({
+var pool = new import_pg.Pool({
   connectionString: config_default.databaseUrl
 });
 var initializeDatabase = async () => {
@@ -94,7 +117,7 @@ var db_default = pool;
 // src/modules/auth/auth.service.ts
 var SALT_ROUNDS = 10;
 var createUser = async (payload) => {
-  const hashedPassword = await bcrypt.hash(payload.password, SALT_ROUNDS);
+  const hashedPassword = await import_bcrypt.default.hash(payload.password, SALT_ROUNDS);
   const result = await db_default.query(
     "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at, updated_at",
     [payload.name, payload.email, hashedPassword, payload.role]
@@ -136,7 +159,7 @@ var login = async (req, res, next) => {
     if (!user) {
       throw new ApiError(401, "Invalid email or password");
     }
-    const isPasswordValid = await bcrypt2.compare(password, user.password);
+    const isPasswordValid = await import_bcrypt2.default.compare(password, user.password);
     if (!isPasswordValid) {
       throw new ApiError(401, "Invalid email or password");
     }
@@ -144,7 +167,7 @@ var login = async (req, res, next) => {
     if (!secret) {
       throw new ApiError(500, "JWT secret is not configured");
     }
-    const token = jwt.sign({ id: user.id, name: user.name, role: user.role }, secret, {
+    const token = import_jsonwebtoken.default.sign({ id: user.id, name: user.name, role: user.role }, secret, {
       expiresIn: "3h"
     });
     const responseData = {
@@ -165,16 +188,16 @@ var login = async (req, res, next) => {
 };
 
 // src/modules/auth/auth.routes.ts
-var router = Router();
+var router = (0, import_express2.Router)();
 router.post("/signup", signup);
 router.post("/login", login);
 var auth_routes_default = router;
 
 // src/modules/issues/issues.routes.ts
-import { Router as Router2 } from "express";
+var import_express5 = require("express");
 
 // src/modules/issues/issues.controller.ts
-import "express";
+var import_express3 = require("express");
 
 // src/modules/issues/issues.service.ts
 var VALID_TYPES = ["bug", "feature_request"];
@@ -401,8 +424,8 @@ var deleteIssue2 = async (req, res, next) => {
 };
 
 // src/middleware/auth.ts
-import "express";
-import jwt2 from "jsonwebtoken";
+var import_express4 = require("express");
+var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"), 1);
 var getTokenFromHeader = (authorization) => {
   if (!authorization) return null;
   const token = authorization.trim();
@@ -419,7 +442,7 @@ var authenticate = (req, res, next) => {
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new ApiError(500, "JWT secret is not configured");
-    const payload = jwt2.verify(token, secret);
+    const payload = import_jsonwebtoken2.default.verify(token, secret);
     req.user = payload;
     next();
   } catch (error) {
@@ -437,7 +460,7 @@ var authorizeRole = (...allowedRoles) => {
 };
 
 // src/modules/issues/issues.routes.ts
-var router2 = Router2();
+var router2 = (0, import_express5.Router)();
 router2.get("/", getIssues2);
 router2.get("/:id", getIssueById2);
 router2.post("/", authenticate, createIssue2);
@@ -446,7 +469,7 @@ router2.delete("/:id", authenticate, authorizeRole("maintainer"), deleteIssue2);
 var issues_routes_default = router2;
 
 // src/middleware/errorHandler.ts
-import "express";
+var import_express6 = require("express");
 var errorHandler = (err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
@@ -459,9 +482,9 @@ var errorHandler = (err, req, res, next) => {
 };
 
 // src/app.ts
-var app = express();
-app.use(cors());
-app.use(express.json());
+var app = (0, import_express7.default)();
+app.use((0, import_cors.default)());
+app.use(import_express7.default.json());
 app.use("/api/auth", auth_routes_default);
 app.use("/api/issues", issues_routes_default);
 app.use((req, res) => {
@@ -478,4 +501,4 @@ var main = async () => {
   });
 };
 main();
-//# sourceMappingURL=server.js.map
+//# sourceMappingURL=server.cjs.map
