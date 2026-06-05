@@ -2,10 +2,22 @@ import app from "./app";
 import config from "./config";
 import { initializeDatabase } from "./config/db.js";
 
-const main = async () => {
+const startServer = async () => {
     await initializeDatabase();
     app.listen(config.port, () => {
-        console.log(`see? this is my port number man: ${config.port}`);
+        console.log(`Server listening on port ${config.port}`);
     });
 };
-main();
+
+if (process.env.VERCEL !== "1") {
+    startServer().catch((error) => {
+        console.error("Failed to start server:", error);
+        process.exit(1);
+    });
+} else {
+    initializeDatabase().catch((error) => {
+        console.error("Database initialization failed:", error);
+    });
+}
+
+export default app;
