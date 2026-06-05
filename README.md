@@ -1,120 +1,110 @@
-# DevPulse API
+ # DevPulse API
 
-A TypeScript Express backend for issue tracking with authentication, role-based access control, and PostgreSQL persistence.
+ A deployed issue tracking backend with JWT auth, role-based permissions, and PostgreSQL persistence.
 
-## Features
+ ## Live URL
 
-- User registration and login with JWT authentication
-- Contributor and maintainer roles
-- Create/read/update/delete issue workflow
-- Role-based permissions for issue updates and deletion
-- Raw SQL queries using `pg` and direct pool interactions
-- Centralized error handling and consistent response format
+ https://dev-plus-a2-server.vercel.app
 
-## Tech Stack
+ ## Features
 
-- Node.js
-- TypeScript
-- Express.js
-- PostgreSQL
-- `pg` driver
-- `bcrypt` for password hashing
-- `jsonwebtoken` for JWT auth
-- `cors` for cross-origin requests
+ - User registration and login with JWT authentication
+ - Contributor and maintainer roles
+ - Create, read, update, and delete issues
+ - Role-based update permissions for contributors and maintainers
+ - Raw SQL handling with `pg` and direct `pool.query()` calls
+ - Centralized error handling and consistent JSON responses
 
-## Setup
+ ## Tech Stack
 
-1. Clone the repository
-2. Install dependencies
+ - Node.js
+ - TypeScript
+ - Express.js
+ - PostgreSQL
+ - `pg` driver
+ - `bcrypt` for password hashing
+ - `jsonwebtoken` for JWT auth
+ - `cors` for cross-origin requests
 
-   ```bash
-   npm install
-   ```
+ ## Setup
 
-3. Create a `.env` file based on `.env.example`
+ 1. Clone the repository
+ 2. Install dependencies
 
-4. Start the server
+ ```bash
+ npm install
+ ```
 
-   ```bash
-   npm run dev
-   ```
+ 3. Create a `.env` file with the following variables
 
-The server initializes the required `users` and `issues` tables on startup if they do not exist.
+ ```env
+ PORT=4000
+ DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=verify-full
+ JWT_SECRET=your_secret_key
+ ```
 
-## Environment Variables
+ 4. Start the development server
 
-- `PORT` - server port (defaults to `4000`)
-- `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - secret for signing JWT tokens
+ ```bash
+ npm run dev
+ ```
 
-## API Endpoints
+ 5. Visit the live API at the URL above or use the local port configured in `.env`
 
-### Auth
+ ## API Endpoints
 
-#### POST `/api/auth/signup`
+ ### Authentication
 
-Request body:
+ - `POST /api/auth/signup`
+   - Request body: `name`, `email`, `password`, `role`
+   - Creates a new user with `contributor` or `maintainer` role
 
-```json
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "password": "securePassword123",
-  "role": "contributor"
-}
-```
+ - `POST /api/auth/login`
+   - Request body: `email`, `password`
+   - Returns `token` and user details
 
-#### POST `/api/auth/login`
+ ### Issues
 
-Request body:
+ - `POST /api/issues`
+   - Requires `Authorization` header with JWT
+   - Request body: `title`, `description`, `type`
+   - Creates a new issue
 
-```json
-{
-  "email": "john.doe@example.com",
-  "password": "securePassword123"
-}
-```
+ - `GET /api/issues`
+   - Public endpoint
+   - Optional query params: `sort=newest|oldest`, `type=bug|feature_request`, `status=open|in_progress|resolved`
+   - Returns issue list with reporter details
 
-### Issues
+ - `GET /api/issues/:id`
+   - Public endpoint
+   - Returns issue details with nested reporter info
 
-#### POST `/api/issues`
+ - `PATCH /api/issues/:id`
+   - Requires JWT
+   - Contributors can update their own open issues
+   - Maintainers can update any issue
 
-Requires `Authorization` header with JWT.
+ - `DELETE /api/issues/:id`
+   - Requires maintainer role
+   - Deletes the specified issue
 
-Request body:
+ ## Database Schema Summary
 
-```json
-{
-  "title": "Database connection timeout under load",
-  "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-  "type": "bug"
-}```
+ ### `users`
+ - `id`: SERIAL PRIMARY KEY
+ - `name`: TEXT NOT NULL
+ - `email`: TEXT NOT NULL UNIQUE
+ - `password`: TEXT NOT NULL
+ - `role`: TEXT NOT NULL DEFAULT `contributor`
+ - `created_at`: TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+ - `updated_at`: TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 
-#### PATCH `/api/issues/:id`
-
-Requires JWT. Contributors can update their own open issues. Maintainers can update any issue.
-
-#### DELETE `/api/issues/:id`
-
-Requires JWT and maintainer role.
-
-## Database Schema
-
-- `users` table
-  - `id` SERIAL PRIMARY KEY
-  - `name` TEXT NOT NULL
-  - `email` TEXT NOT NULL UNIQUE
-  - `password` TEXT NOT NULL
-  - `role` TEXT NOT NULL DEFAULT `contributor`
-  - `created_at` TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-  - `updated_at` TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-
-- `issues` table
-  - `id` SERIAL PRIMARY KEY
-  - `title` TEXT NOT NULL
-  - `description` TEXT NOT NULL
-  - `type` TEXT NOT NULL
-  - `status` TEXT NOT NULL DEFAULT `open`
-  - `reporter_id` INTEGER NOT NULL
-  - `created_at` TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-  - `updated_at` TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+ ### `issues`
+ - `id`: SERIAL PRIMARY KEY
+ - `title`: TEXT NOT NULL
+ - `description`: TEXT NOT NULL
+ - `type`: TEXT NOT NULL
+ - `status`: TEXT NOT NULL DEFAULT `open`
+ - `reporter_id`: INTEGER NOT NULL
+ - `created_at`: TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+ - `updated_at`: TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
